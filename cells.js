@@ -1,135 +1,147 @@
 
 class Cells {
-	constructor(name) {
-		this.cells="." + name;
-		this.TotalCols = 4; //количество столбцов
-		this.TotalRows = 4; //количество рядов
-		this.SelectedCol = -1; //выбранный столбец
-		this.SelectedRow = -1; //выбранный ряд 
-		this.CreateCells();
+    constructor(DOMCell, TotalCols, TotalRows) {
+        this.cells=DOMCell;
+        this.TotalCols = TotalCols; //количество столбцов
+        this.TotalRows = TotalRows; //количество рядов
+        this.SelectedCol = -1; //выбранный столбец
+        this.SelectedRow = -1; //выбранный ряд
+        this.CreateHTMLCells();
 
-		this.cells__table = document.querySelector(this.cells+" .cells__table");
-		this.cells__add_columm_button = document.querySelector(this.cells+" .cells__add_columm_button");
-		this.cells__add_row_button = document.querySelector(this.cells+" .cells__add_row_button");
-		this.cells__delete_column_button = document.querySelector(this.cells+" .cells__delete_column_button");
-		this.cells__delete_row_button = document.querySelector(this.cells+" .cells__delete_row_button");
-		
-		this.AddListners();		
-	}
+        this.cells__table = DOMCell.querySelector(".cells__table");
+        this.cells__add_columm_button = DOMCell.querySelector(".cells__add_columm_button");
+        this.cells__add_row_button = DOMCell.querySelector(".cells__add_row_button");
+        this.cells__delete_column_button = DOMCell.querySelector(".cells__delete_column_button");
+        this.cells__delete_row_button = DOMCell.querySelector(".cells__delete_row_button");
 
-	CreateCells(){
-		var td=`<td class = "cells__td"></td>`;
-		var tr=`<tr>`+td+td+td+td+`</tr>`;
+        this.AddListners();
+    }
 
-		document.querySelector(this.cells).innerHTML=`
-			<table class = "cells__table">`+tr+tr+tr+tr+
-			`</table>
-				<button class = "cells__add_columm_button">+</button>
-				<button class = "cells__delete_row_button">-</button>
-				<button class = "cells__delete_column_button">-</button>
-				<button class = "cells__add_row_button">+</button>
+    CreateHTMLCells(){
+        var td = `<td class = "cells__td"></td>`;
+        var tr = `<tr>`;
+
+        for (var i=0; i < this.TotalCols; i++) tr += td;
+
+        tr += `</tr>`;
+        var table = `<table class = "cells__table">`;
+
+        for (i=0; i < this.TotalRows; i++) table += tr;
+
+        this.cells.innerHTML = table +
+            `</table>
+				<button class = "cells__buttons cells__add_button cells__add_columm_button"><i class="fa fa-plus"></i></button>
+				<button class = "cells__buttons cells__delete_button cells__delete_row_button"><i class="fa fa-minus"></i></button>
+				<button class = "cells__buttons cells__delete_button cells__delete_column_button"><i class="fa fa-minus"></i></button>
+				<button class = "cells__buttons cells__add_button cells__add_row_button"><i class="fa fa-plus"></i></button>
 			`;
-	}
-	
-	AddListners(){
-		//навешиваем обработчики клика и положения мышки
-		this.cells__table.addEventListener('mouseover', this.MouseOverCells.bind(this));
-		this.cells__table.addEventListener('mouseout', this.MouseOutCells.bind(this));
+    }
 
-		this.cells__add_columm_button.addEventListener('click', this.AddCol.bind(this));
-		this.cells__add_row_button.addEventListener('click', this.AddRow.bind(this));
+    AddListners(){
+        //навешиваем обработчики клика и положения мышки
+        this.cells__table.addEventListener('mouseover', this.MouseOverCells.bind(this));
+        this.cells__table.addEventListener('mouseout', this.MouseOutCells.bind(this));
 
-		this.cells__delete_column_button.addEventListener('click', this.RemoveCol.bind(this));
-		this.cells__delete_column_button.addEventListener('mouseover', this.SetEnabledColDeleteButton.bind(this));
-		this.cells__delete_column_button.addEventListener('mouseout', this.SetDisabledColDeleteButton.bind(this));
+        this.cells__add_columm_button.addEventListener('click', this.AddCol.bind(this));
+        this.cells__add_row_button.addEventListener('click', this.AddRow.bind(this));
 
-		this.cells__delete_row_button.addEventListener('click', this.RemoveRow.bind(this));
-		this.cells__delete_row_button.addEventListener('mouseover', this.SetEnabledRowDeleteButton.bind(this));
-		this.cells__delete_row_button.addEventListener('mouseout', this.SetDisabledRowDeleteButton.bind(this));
-	}	
-	
-	MouseOutCells(event) {
-		//Мышь вне таблицы
-		this.SetDisabledRowDeleteButton();
-		this.SetDisabledColDeleteButton();		
-	}	
+        this.cells__delete_column_button.addEventListener('click', this.RemoveCol.bind(this));
+        this.cells__delete_column_button.addEventListener('mouseover', this.SetEnabledColDeleteButton.bind(this));
+        this.cells__delete_column_button.addEventListener('mouseout', this.SetDisabledColDeleteButton.bind(this));
 
-	
-	MouseOverCells(event) {
-		//мышь на таблице
-		this.SelectedRow=event.target.parentElement.rowIndex;
-		this.SelectedCol=event.target.cellIndex;
+        this.cells__delete_row_button.addEventListener('click', this.RemoveRow.bind(this));
+        this.cells__delete_row_button.addEventListener('mouseover', this.SetEnabledRowDeleteButton.bind(this));
+        this.cells__delete_row_button.addEventListener('mouseout', this.SetDisabledRowDeleteButton.bind(this));
+    }
 
-		this.SetEnabledRowDeleteButton();
-		this.SetEnabledColDeleteButton();
+    MouseOutCells() {
+        //Мышь вне таблицы
+        this.SetDisabledRowDeleteButton();
+        this.SetDisabledColDeleteButton();
+    }
 
-		this.MoveDeleteRowButton();
-		this.MoveDeleteColButton();
-	}	
+    MouseOverCells(event) {
+        //мышь на таблице
+        if (event.target.classList.contains("cells__td")) {
+            this.SelectedRow=event.target.parentElement.rowIndex;
+            this.SelectedCol=event.target.cellIndex;
 
-	SetEnabledRowDeleteButton(){
-		if (this.TotalRows>1) 
-			this.cells__delete_row_button.classList.add('cells__delete_row_button-enabled');
-	}
+            this.SetEnabledRowDeleteButton();
+            this.SetEnabledColDeleteButton();
 
-	SetEnabledColDeleteButton(){
-		if (this.TotalCols>1) 
-			this.cells__delete_column_button.classList.add('cells__delete_column_button-enabled');
-	}
+            this.MoveDeleteRowButton(event.layerY-event.offsetY);
+            this.MoveDeleteColButton(event.layerX-event.offsetX);
+        }
+    }
 
-	SetDisabledColDeleteButton(){
-		this.cells__delete_column_button.classList.remove('cells__delete_column_button-enabled');
- 	}
+    SetEnabledRowDeleteButton() {
+        if (this.TotalRows > 1)
+            this.cells__delete_row_button.classList.add('cells__button-enabled');
+    }
 
-	SetDisabledRowDeleteButton(){
-		this.cells__delete_row_button.classList.remove('cells__delete_row_button-enabled');
- 	}
-	
-	MoveDeleteRowButton() {
-		this.cells__delete_row_button.style.top=60+this.SelectedRow*52+"px";
-	}
-	
-	MoveDeleteColButton() {
-		this.cells__delete_column_button.style.left=60+this.SelectedCol*52+"px";
-	}
+    SetEnabledColDeleteButton() {
+        if (this.TotalCols > 1)
+            this.cells__delete_column_button.classList.add('cells__button-enabled');
+    }
 
-	RemoveCol(c) {
-		for (var r = 0; r < this.TotalRows; r++)
-			this.cells__table.rows[r].deleteCell(this.SelectedRow);
-		
-		this.TotalCols-=1;			
-		this.cells__delete_column_button.classList.remove('cells__delete_column_button-enabled');
-	}
-	
-	RemoveRow(r) {
-		this.cells__table.deleteRow(this.SelectedRow);
+    SetDisabledColDeleteButton() {
+        this.cells__delete_column_button.classList.remove('cells__button-enabled');
+    }
 
-		this.TotalRows-=1;
-		this.cells__delete_row_button.classList.remove('cells__delete_row_button-enabled');
-	}
-	
-	AddCol() {
-		for (var r = 0; r < this.TotalRows; r++){
-			this.cells__table.rows[r].insertCell(this.TotalCols);
-			this.cells__table.rows[r].cells[this.TotalCols].classList.add('cells__td');
-		}
-		this.TotalCols+=1;	
-	}
-	
-	AddRow() {
-		var newrow = this.cells__table.insertRow(this.TotalRows);
+    SetDisabledRowDeleteButton() {
+        this.cells__delete_row_button.classList.remove('cells__button-enabled');
+    }
 
-		for (var c = 0; c < this.TotalCols; c++) {
-			newrow.insertCell(-1);
-			newrow.cells[c].classList.add('cells__td');
-		}
-		this.TotalRows+=1;	
-	}
+    MoveDeleteRowButton(offsetTop) {
+        this.cells__delete_row_button.style.top=offsetTop+"px";
+    }
+
+    MoveDeleteColButton(offsetLeft) {
+        this.cells__delete_column_button.style.left=offsetLeft+"px";
+    }
+
+    RemoveCol() {
+        for (var r = 0; r < this.TotalRows; r++) {
+            this.cells__table.rows[r].deleteCell(this.SelectedCol);
+        }
+        this.TotalCols -= 1;
+
+        this.SetDisabledColDeleteButton();
+     }
+
+    RemoveRow() {
+        this.cells__table.deleteRow(this.SelectedRow);
+
+        this.TotalRows -= 1;
+        this.SetDisabledRowDeleteButton();
+    }
+
+    AddCol() {
+        for (var r = 0; r < this.TotalRows; r++){
+            this.cells__table.rows[r].insertCell(this.TotalCols);
+            this.cells__table.rows[r].cells[this.TotalCols].classList.add('cells__td');
+        }
+        this.TotalCols += 1;
+    }
+
+    AddRow() {
+        var newrow = this.cells__table.insertRow(this.TotalRows);
+
+        for (var c = 0; c < this.TotalCols; c++) {
+            newrow.insertCell(-1);
+            newrow.cells[c].classList.add('cells__td');
+        }
+        this.TotalRows += 1;
+    }
 }
-
 
 window.onload = function(){
+    var TotalCols = 5; //количество столбцов
+    var TotalRows = 5; //количество рядов
+    var DOMCells = document.querySelectorAll(".cells");
 
-	var cells  = new Cells('cells');	
-	var cells1 = new Cells('cells1');	
-}
+    for ( var i = 0; i < DOMCells.length; i++) {
+        new Cells(DOMCells[i], TotalCols, TotalRows);
+    }
+
+};
