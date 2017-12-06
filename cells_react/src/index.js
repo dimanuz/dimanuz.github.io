@@ -8,7 +8,7 @@ import registerServiceWorker from './registerServiceWorker';
 
 let DOMCells = document.querySelectorAll(".cells");
 ReactDOM.render(
-    <Cells />,
+    <Cells totalCols = "2" totalRows = "2" />,
     DOMCells[0]
 );
 

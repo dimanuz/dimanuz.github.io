@@ -12,7 +12,7 @@
     --cells_delete_button_color: #b20000;
     --cells_delete_button_hover_color: #ca4c49;
 
-    --cells_transition_timeout: 300ms;
+    --cells_transition_timeout: 200ms;
     --cells_transition_ttf: ease;
 }
 
